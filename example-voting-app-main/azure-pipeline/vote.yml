@@ -1,0 +1,68 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  paths:
+    include:
+      - example-voting-app-main/vote/*
+
+pool:
+  name: azureagent   # Your self-hosted agent pool
+
+resources:
+- repo: self  
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '7688412c-e477-44e9-9c85-16bd3aedc567'
+  imageRepository: 'votingapp'
+  containerRegistry: 'azurecontainer.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/example-voting-app-main/vote/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+
+stages:
+- stage: Build
+  displayName: Build Image
+  jobs:
+  - job: BuildImage
+    displayName: Build Docker Image
+    pool:
+      name: azureagent
+    steps:
+    - task: Docker@2
+      displayName: Build image 
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'build'
+        Dockerfile: 'example-voting-app-main/vote/Dockerfile'
+        tags: '$(tag)'
+
+- stage: Push
+  displayName: push stage
+  jobs:
+  - job: Push
+    displayName: Push
+    pool:
+      name: azureagent
+    steps:
+    - task: Docker@2
+      displayName: push an image to container registry
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'push'
+        tags: '$(tag)'
+
+- stage: Update
+  displayName: Update 
+  jobs:
+  - job: Update
+    displayName: Update
+    steps:
+    - task: ShellScript@2
+      inputs:
+        scriptPath: 'example-voting-app-main/scripts/updateK8sManifests.sh'
+        args: 'vote $(imageRepository) $(tag)'
