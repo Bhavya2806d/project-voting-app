@@ -6,10 +6,10 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the application directory
+# Set the application directory 
 WORKDIR /usr/local/app
 
-# Install our requirements.txt
+# Install our requirements.txt on working directory
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
