@@ -60,12 +60,20 @@ stages:
           $(tag)
 
 - stage: Update
-  displayName: Update 
+  displayName: Update Kubernetes Manifest
   jobs:
-  - job: Update
-    displayName: Update
+  - job: UpdateManifests
+    displayName: Update Manifests
     steps:
+    - script: |
+        sudo apt-get update -y
+        sudo apt-get install dos2unix -y
+        dos2unix example-voting-app-main/scripts/updatek8Manifest.sh
+        chmod +x example-voting-app-main/scripts/updatek8Manifest.sh
+      displayName: Fix CRLF & Install Tools
+
     - task: ShellScript@2
+      displayName: Execute Manifest Update Script
       inputs:
         scriptPath: 'example-voting-app-main/scripts/updatek8Manifest.sh'
-        args: 'result $(imageRepository) $(tag)'
+        args: 'vote $(imageRepository) $(tag)'      
