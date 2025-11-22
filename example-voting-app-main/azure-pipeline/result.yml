@@ -76,4 +76,4 @@ stages:
       displayName: Execute Manifest Update Script
       inputs:
         scriptPath: 'example-voting-app-main/scripts/updatek8Manifest.sh'
-        args: 'vote $(imageRepository) $(tag)'      
+        args: 'result $(imageRepository) $(tag)'      
