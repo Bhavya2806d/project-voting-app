@@ -17,3 +17,5 @@ spec:
       containers:
       - image: dockersamples/examplevotingapp_worker
         name: worker
+      imagePullSecrets:        #with container inline
+      - name: acr-secret    
